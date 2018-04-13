@@ -81521,5 +81521,7 @@ exports.Model = Model;
 exports.Axis = Axis;
 exports.env = env$1;
 
+exports.geoFixFuncs = geoFixFuncs;
+
 })));
 //# sourceMappingURL=echarts.js.map
