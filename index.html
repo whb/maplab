@@ -26,6 +26,51 @@ var fixAreaCoord = function (geo) {
     });
 };
 
+
+
+
+
+
+var data = [
+    {name: '大庆', value: 500},
+    {name: '朝阳区', value: 479}
+];
+var geoCoordMap = {
+    '大庆':[130,60],
+    '朝阳区':[125,45]
+};
+var convertData = function (data) {
+    var res = [];
+    for (var i = 0; i < data.length; i++) {
+        var geoCoord = geoCoordMap[data[i].name];
+        if (geoCoord) {
+            res.push({
+                name: data[i].name,
+                value: geoCoord.concat(data[i].value)
+            });
+        }
+    }
+    return res;
+};
+
+var convertLineData = function (data) {
+    var res = [];
+    for (var i = 0; i < data.length; i++) {
+        var dataItem = data[i];
+        var fromCoord = geoCoordMap[dataItem[0].name];
+        var toCoord = geoCoordMap[dataItem[1].name];
+        if (fromCoord && toCoord) {
+            res.push({
+                fromName: dataItem[0].name,
+                toName: dataItem[1].name,
+                coords: [fromCoord, toCoord]
+            });
+        }
+    }
+    return res;
+};
+var lineData = [[{name: '大庆'}, {name: '朝阳区'}]];
+
 	var myChart = echarts.init(document.getElementById('main'));
 	var beijingDataURL = "https://raw.githubusercontent.com/whb/maplab/master/maps/beijing.json";
 	var chinaDataURL = "https://raw.githubusercontent.com/whb/maplab/master/maps/china-regions.json";
@@ -39,41 +84,40 @@ var fixAreaCoord = function (geo) {
 			echarts.registerMap('北京', beijingMap, {
 				'朝阳区': {left: 118,	top: 40,	width: 10},
 				'华北': {left: 100,	top: 50,	width: 20},
-				'东北': {left: 120,	top: 50, width: 20},
+				'东北': {left: 120,	top: 50, height: 20},
 				'南海诸岛': {"left":126,"top":20,"width":10}
 			});
 
 			myChart.hideLoading();
+
 			myChart.setOption({
-				 visualMap: {
-						min: 10,
-						max: 50,
-						text:['High','Low'],
-						realtime: false,
-						calculable: true,
-						inRange: {
-							color: ['lightskyblue','yellow', 'orangered']
-						}
+			  visualMap: {
+					min: 10,
+					max: 50,
+					text:['High','Low'],
+					realtime: false,
+					calculable: true,
+					inRange: {
+						color: ['lightskyblue','yellow', 'orangered']
+					}
+				},
+				geo: {
+					map: '北京',
+					roam: true,
+					label:{
+							show: true
 					},
-				series: [{
+				},
+				series: [
+				{
 					type: 'map',
 					map: '北京',
 					selectedMode:'single',
-					itemStyle:{
-						normal:{
-							label:{
-								show:true
-							}
-						},
-						emphasis:{
-							label:{
-								show:true
-							}
-						}
-					},
+					geoIndex: 0,
+					
 					data:[
-						{name: '朝阳区', value: 100},
-						{name: '门头沟区', value: 10},
+						{name: '朝阳区', value: 10},
+						{name: '门头沟区', value: 100},
 						{name: '通州区', value: 20},
 						{name: '昌平区', value: 30},
 						{name: '大兴区', value: 40},
@@ -84,7 +128,57 @@ var fixAreaCoord = function (geo) {
 						{name: '延庆区', value: 35},
 						{name: '怀柔区', value: 45}
 					]
-				}]
+				},
+
+				{
+            name: 'pm2.5',
+            type: 'scatter',
+            coordinateSystem: 'geo',
+            data: convertData(data),
+            symbolSize: function (val) {
+                return val[2] / 10;
+            },
+            label: {
+                normal: {
+                    formatter: '{b}',
+                    position: 'right',
+                    show: false
+                },
+                emphasis: {
+                    show: true
+                }
+            },
+            itemStyle: {
+                normal: {
+                    color: '#ddb926'
+                }
+            }
+        },
+
+        {
+		        name: 'Top10',
+		        type: 'lines',
+		        zlevel: 2,
+		        symbol: ['none', 'arrow'],
+		        symbolSize: 10,
+		        effect: {
+		            show: true,
+		            period: 6,
+		            trailLength: 0,
+		            symbol: 'arrow',
+		            symbolSize: 15
+		        },
+		        lineStyle: {
+		            normal: {
+		                color: 'black',
+		                width: 1,
+		                opacity: 0.6,
+		                curveness: 0.2
+		            }
+		        },
+		        data: convertLineData(lineData)
+		    },
+				]
 			});
 		});
 	});
