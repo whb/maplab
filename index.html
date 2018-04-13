@@ -1,27 +1,39 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <meta charset="utf-8">
-    <script src="echarts-4.0.4/echarts.js"></script>
+  <meta charset="utf-8">
+  <script src="echarts-4.0.4/echarts.js"></script>
 	<script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
 </head>
 <body>
-    <div id="main" style="width:1024px;height:768px;"></div>
+    <div id="main" style="width:1366px;height:768px;"></div>
 	
 <script type="text/javascript">
-var coordsOffsetMap = {
-    '东北' : [150, 40],
-    '西北' : [150, 40],
+var mapCenter = [116.5, 40];
+
+var ozMap = {
+    '东北' : { x: 10, y: 13, zoom: 0.03 },
+    '华北' : { x:-6, y: 13, zoom: 0.03 },
+    '西北' : { x:-28, y: 5, zoom: 0.03 },
+
+    '华东' : { x: 10, y: -5, zoom: 0.03 },
+    '华中' : { x:-2, y: -12, zoom: 0.03 },
+    '西南' : { x:-30, y: -10, zoom: 0.03 },
+    '华南' : { x:-5, y: -15, zoom: 0.03 },
+
+    '南海诸岛' : { x: 10, y: -12, zoom: 0.008},
 };
 
+
+
 var fixAreaCoord = function (geo) {
+		let ratio = 0.08;
+		let center = mapCenter;
     geo.regions.forEach(function (region) {
-        var coordFix = coordsOffsetMap[region.name];
-        if (coordFix) {
-            var cp = region.center;
-            console.log(cp)
-            cp[0] += coordFix[0] / 10.5;
-            cp[1] += coordFix[1] / (10.5 / 0.75);
+        var oz = ozMap[region.name];
+        if (oz) {
+            let rect = region.getBoundingRect();
+            region.transformTo(center[0] + oz.x*ratio, center[1] + oz.y*ratio, rect.width * oz.zoom);
         }
     });
 };
@@ -36,8 +48,8 @@ var data = [
     {name: '朝阳区', value: 479}
 ];
 var geoCoordMap = {
-    '大庆':[130,60],
-    '朝阳区':[125,45]
+    '大庆':  [117.5, 41.2],
+    '朝阳区':[116.5, 40]
 };
 var convertData = function (data) {
     var res = [];
@@ -80,12 +92,13 @@ var lineData = [[{name: '大庆'}, {name: '朝阳区'}]];
       var chinaMap = JSON.parse(chinaJson);
       beijingMap.features = beijingMap.features.concat(chinaMap.features);
 
-      //echarts.geoFixFuncs.push(fixAreaCoord);
+      echarts.geoFixFuncs.push(fixAreaCoord);
+      myChart.parseGeoJSON = function (geoJson) {
+      	console.log(geoJson)
+
+      };
 			echarts.registerMap('北京', beijingMap, {
-				'朝阳区': {left: 118,	top: 40,	width: 10},
-				'华北': {left: 100,	top: 50,	width: 20},
-				'东北': {left: 120,	top: 50, height: 20},
-				'南海诸岛': {"left":126,"top":20,"width":10}
+				//'南海诸岛': {"left":117.5,"top":30,"width":1}
 			});
 
 			myChart.hideLoading();
@@ -103,6 +116,8 @@ var lineData = [[{name: '大庆'}, {name: '朝阳区'}]];
 				},
 				geo: {
 					map: '北京',
+					zoom: 1,
+					center: mapCenter,
 					roam: true,
 					label:{
 							show: true
@@ -117,11 +132,11 @@ var lineData = [[{name: '大庆'}, {name: '朝阳区'}]];
 					
 					data:[
 						{name: '朝阳区', value: 10},
-						{name: '门头沟区', value: 100},
+						{name: '门头沟区', value: 10},
 						{name: '通州区', value: 20},
 						{name: '昌平区', value: 30},
 						{name: '大兴区', value: 40},
-						{name: '房山区', value: 41},
+						{name: '房山区', value: 91},
 						{name: '顺义区', value: 15},
 						{name: '平谷区', value: 25},
 						{name: '密云区', value: 35},
