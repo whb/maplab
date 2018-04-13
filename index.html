@@ -10,14 +10,11 @@
 	
 <script type="text/javascript">
 	var myChart = echarts.init(document.getElementById('main'));
-	var uploadedDataURL = "https://raw.githubusercontent.com/apache/incubator-echarts/master/map/json/province/beijing.json";
-	$.get(uploadedDataURL, function(chinaJson) {
-		echarts.registerMap('北京', chinaJson, {
-			'朝阳区': {              
-				left: 118,
-				top: 40,
-				width: 1
-			}
+	var beijingDataURL = "https://raw.githubusercontent.com/whb/maplab/master/maps/beijing.json";
+	$.get(beijingDataURL, function(beijingJson) {
+		echarts.registerMap('北京', beijingJson, {
+			'朝阳区': {left: 118,	top: 40,	width: 1},
+			'南海诸岛': {"left":126,"top":20,"width":10}
 		});
 		myChart.hideLoading();
 		myChart.setOption({
@@ -59,8 +56,6 @@
 					{name: '密云区', value: 35},
 					{name: '延庆区', value: 35},
 					{name: '怀柔区', value: 45}
-				   
-				   
 				]
 			}]
 		});
