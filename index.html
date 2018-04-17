@@ -11,35 +11,24 @@
 <script type="text/javascript">
 var mapCenter = [116.5, 40];
 
-var ozMap = {
-    '东北' : { x: 10, y: 13, zoom: 0.03 },
-    '华北' : { x:-6, y: 13, zoom: 0.03 },
-    '西北' : { x:-28, y: 5, zoom: 0.03 },
-
-    '华东' : { x: 10, y: -5, zoom: 0.03 },
-    '华中' : { x:-2, y: -12, zoom: 0.03 },
-    '西南' : { x:-30, y: -10, zoom: 0.03 },
-    '华南' : { x:-5, y: -15, zoom: 0.03 },
-
-    '南海诸岛' : { x: 10, y: -12, zoom: 0.008},
+var geoAreaCoordMap = {
+    'Russia': [100, 60],
+    '北美': [140+8, 52.85+3.5]
 };
 
-
-
-var fixAreaCoord = function (geo) {
-		let ratio = 0.08;
-		let center = mapCenter;
+var fixAreaGeoCoord = function (geo) {
     geo.regions.forEach(function (region) {
-        var oz = ozMap[region.name];
-        if (oz) {
-            let rect = region.getBoundingRect();
-            region.transformTo(center[0] + oz.x*ratio, center[1] + oz.y*ratio, rect.width * oz.zoom);
+        var geoCoord = geoAreaCoordMap[region.name];
+        if (geoCoord) {
+            var cp = region.center;
+            cp[0] = geoCoord[0];
+            cp[1] = geoCoord[1];
         }
     });
 };
 
 var position = {
-    'Canada' : { x: 140, y: 52.85, zoom: 0.1 },
+    '北美' : { x: 140, y: 52.85, zoom: 0.15 },
 };
 var layoutArea = function (geo) {
 		let ratio = 0.08;
@@ -53,11 +42,21 @@ var layoutArea = function (geo) {
     });
 };
 
-var selectedAreas = ['Canada'];
+var selectedAreas = ['Canada', 'United States'];
 var composeAreas = function (chinaFeatures, worldFeatures) {
+	let area = {
+		type: 'Feature',
+		geometry: {type: 'MultiPolygon', coordinates: [], encodeOffsets: []},
+		properties: {name: '北美', childNum: 0}
+	};
 	worldFeatures.filter(f => { return selectedAreas.includes(f.properties.name) }).forEach(f => {
-		chinaFeatures.push(f);
+		console.log(f)
+		area.geometry.coordinates = area.geometry.coordinates.concat(f.geometry.coordinates);
+		area.geometry.encodeOffsets = area.geometry.encodeOffsets.concat(f.geometry.encodeOffsets);
+		area.properties.childNum += f.properties.childNum;
 	});
+	console.log(area)
+	chinaFeatures.push(area);
 }
 
 var chinaDataURL = "https://raw.githubusercontent.com/apache/incubator-echarts/master/map/json/china.json";
@@ -70,13 +69,13 @@ $.get(chinaDataURL, function(chinaJson) {
     //chinaMap.features = chinaMap.features.concat(worldMap.features);
 
     echarts.geoFixFuncs.push(layoutArea);
+    echarts.geoFixFuncs.push(fixAreaGeoCoord);
 
 		echarts.registerMap('chinaWithWorld', chinaMap, {
 			//'南海诸岛': {"left":117.5,"top":30,"width":1}
 		});
 
 		drawChart();
-
 	});
 });
 
@@ -85,11 +84,11 @@ $.get(chinaDataURL, function(chinaJson) {
 
 
 var data = [
-    {name: '大庆', value: 500},
+    {name: '北美', value: 500},
     {name: '朝阳区', value: 479}
 ];
 var geoCoordMap = {
-    '大庆':  [117.5, 41.2],
+    '北美':  [140+8, 52.85+3.5],
     '朝阳区':[116.5, 40]
 };
 var convertData = function (data) {
@@ -122,7 +121,7 @@ var convertLineData = function (data) {
     }
     return res;
 };
-var lineData = [[{name: '大庆'}, {name: '朝阳区'}]];
+var lineData = [[{name: '北美'}, {name: '朝阳区'}]];
 
 var drawChart = function() {
 		var myChart = echarts.init(document.getElementById('main'));
