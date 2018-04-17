@@ -36,21 +36,23 @@
         '北美' : ['Canada', 'United States'],
         '拉丁美洲' : ['Mexico','Chile', 'Brazil', 'Argentina', 'Colombia'],
         '欧洲' : ['France', 'Germany', 'Spain','Sweden','United Kingdom','Portugal','Norway','Italy','Ireland','Greece','Austria'],
-        //'奥地利' : [, ]
     };
     var positionSettings = {
-        '北美' : { center: [150.842236328125, 57.657763671875], zoom: 0.2, centerOffset: [-107, 0]},
-        '拉丁美洲' : { center: [132, 40], zoom: 0.2},
-        '欧洲' : { center: [40.576, 50.064], zoom: 0.2},
+        '北美' : { center: [150.842236328125, 47.657763671875], zoom: 0.2, centerOffset: [-50, 10]},
+        '拉丁美洲' : { center: [152, 30], zoom: 0.2, centerOffset: [0, 30]},
+        '欧洲' : { center: [75.576, 50.064], zoom: 0.2},
     };
     var layoutArea = function (geo) {
         geo.regions.forEach(function (region) {
-            var oz = positionSettings[region.name];
-            if (oz) {
+            var setting = positionSettings[region.name];
+            if (setting) {
                 let rect = region.getBoundingRect();
-                let left = oz.center[0] - (rect.width * oz.zoom)/2 - (-107)*oz.zoom;
-                let bottom = oz.center[1] - (rect.height * oz.zoom)/2;
-                region.transformTo(left, bottom, rect.width * oz.zoom);
+                let centerOffsetX = setting.centerOffset? setting.centerOffset[0] : 0;
+                let centerOffsetY = setting.centerOffset? setting.centerOffset[1] : 0;
+
+                let left = setting.center[0] - (rect.width * setting.zoom)/2 - centerOffsetX*setting.zoom;
+                let bottom = setting.center[1] - (rect.height * setting.zoom)/2 - centerOffsetY*setting.zoom;
+                region.transformTo(left, bottom, rect.width * setting.zoom);
             }
         });
     };
@@ -85,15 +87,10 @@
                 // area.geometry.encodeOffsets = area.geometry.encodeOffsets.concat(f.geometry.encodeOffsets);
                 // area.properties.childNum += f.properties.childNum;
 
-               var geom=f.geometry; 
-               var props=f.properties;
+               let geom=f.geometry; 
+               let props=f.properties;
                if (geom.type === 'MultiPolygon'){
                   for (var i=0; i < geom.coordinates.length; i++){
-                      var polygon = {
-                           'type':'Polygon', 
-                           'coordinates':geom.coordinates[i],
-                           'properties': props};
-                      
                       area.geometry.coordinates = area.geometry.coordinates.concat(geom.coordinates[i]);
                       area.geometry.encodeOffsets = area.geometry.encodeOffsets.concat(geom.encodeOffsets[i]);
                       area.properties.childNum += 1;
