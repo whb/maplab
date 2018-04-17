@@ -34,9 +34,9 @@
     // layout
     var areaDefines = {
         '北美' : ['Canada', 'United States'],
-        '拉丁美洲' : ['Mexico','Chile', 'Brazil', 'Argentina'],
-        '欧洲' : ['France', 'Germany', 'Spain','Sweden','United Kingdom','Portugal','Norway','Italy','Ireland','Greece'],
-        //'奥地利' : ['Austria', 'Colombia']
+        '拉丁美洲' : ['Mexico','Chile', 'Brazil', 'Argentina', 'Colombia'],
+        '欧洲' : ['France', 'Germany', 'Spain','Sweden','United Kingdom','Portugal','Norway','Italy','Ireland','Greece','Austria'],
+        //'奥地利' : [, ]
     };
     var positionSettings = {
         '北美' : { center: [150.842236328125, 57.657763671875], zoom: 0.2, centerOffset: [-107, 0]},
@@ -74,14 +74,34 @@
         for (var key in areaDefines) {
             let area = {
                 type: 'Feature',
-                geometry: {type: 'MultiPolygon', coordinates: [], encodeOffsets: []},
+                geometry: {type: 'Polygon', coordinates: [], encodeOffsets: []},
                 properties: {name: key, childNum: 0}
             };
             let countriesInArea = areaDefines[key];
             worldFeatures.filter(f => { return countriesInArea.includes(f.properties.name) }).forEach(f => {
-                area.geometry.coordinates = area.geometry.coordinates.concat(f.geometry.coordinates);
-                area.geometry.encodeOffsets = area.geometry.encodeOffsets.concat(f.geometry.encodeOffsets);
-                area.properties.childNum += f.properties.childNum;
+                // area.geometry.type = f.geometry.type;
+                // area.geometry.coordinates = area.geometry.coordinates.concat(f.geometry.coordinates);
+                // area.geometry.encodeOffsets = area.geometry.encodeOffsets.concat(f.geometry.encodeOffsets);
+                // area.properties.childNum += f.properties.childNum;
+
+               var geom=f.geometry; 
+               var props=f.properties;
+               if (geom.type === 'MultiPolygon'){
+                  for (var i=0; i < geom.coordinates.length; i++){
+                      var polygon = {
+                           'type':'Polygon', 
+                           'coordinates':geom.coordinates[i],
+                           'properties': props};
+                      
+                      area.geometry.coordinates = area.geometry.coordinates.concat(geom.coordinates[i]);
+                      area.geometry.encodeOffsets = area.geometry.encodeOffsets.concat(geom.encodeOffsets[i]);
+                      area.properties.childNum += 1;
+                  }
+                } else {
+                    area.geometry.coordinates = area.geometry.coordinates.concat(geom.coordinates);
+                    area.geometry.encodeOffsets = area.geometry.encodeOffsets.concat(geom.encodeOffsets);
+                    area.properties.childNum += 1;
+                }
             });
             chinaFeatures.push(area);
         }
