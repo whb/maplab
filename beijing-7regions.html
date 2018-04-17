@@ -84,17 +84,20 @@ var convertLineData = function (data) {
 var lineData = [[{name: '大庆'}, {name: '朝阳区'}]];
 
 	var myChart = echarts.init(document.getElementById('main'));
-	var chinaDataURL = "https://raw.githubusercontent.com/apache/incubator-echarts/master/map/json/china.json";
-	var worldDataURL = "https://raw.githubusercontent.com/apache/incubator-echarts/master/map/json/world.json";
-	$.get(chinaDataURL, function(chinaJson) {
-		$.get(worldDataURL, function(worldJson) {
-			var chinaMap = JSON.parse(chinaJson);
-      var worldMap = JSON.parse(worldJson);
-      //chinaMap.features = chinaMap.features.concat(worldMap.features);
+	var beijingDataURL = "https://raw.githubusercontent.com/whb/maplab/master/maps/beijing.json";
+	var chinaDataURL = "https://raw.githubusercontent.com/whb/maplab/master/maps/china-regions.json";
+	$.get(beijingDataURL, function(beijingJson) {
+		$.get(chinaDataURL, function(chinaJson) {
+			var beijingMap = JSON.parse(beijingJson);
+      var chinaMap = JSON.parse(chinaJson);
+      beijingMap.features = beijingMap.features.concat(chinaMap.features);
 
       echarts.geoFixFuncs.push(fixAreaCoord);
+      myChart.parseGeoJSON = function (geoJson) {
+      	console.log(geoJson)
 
-			echarts.registerMap('北京', worldMap, {
+      };
+			echarts.registerMap('北京', beijingMap, {
 				//'南海诸岛': {"left":117.5,"top":30,"width":1}
 			});
 
