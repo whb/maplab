@@ -38,6 +38,47 @@ var fixAreaCoord = function (geo) {
     });
 };
 
+var position = {
+    'Canada' : { x: 140, y: 52.85, zoom: 0.1 },
+};
+var layoutArea = function (geo) {
+		let ratio = 0.08;
+		let center = mapCenter;
+    geo.regions.forEach(function (region) {
+        var oz = position[region.name];
+        if (oz) {
+            let rect = region.getBoundingRect();
+            region.transformTo(oz.x, oz.y, rect.width * oz.zoom);
+        }
+    });
+};
+
+var selectedAreas = ['Canada'];
+var composeAreas = function (chinaFeatures, worldFeatures) {
+	worldFeatures.filter(f => { return selectedAreas.includes(f.properties.name) }).forEach(f => {
+		chinaFeatures.push(f);
+	});
+}
+
+var chinaDataURL = "https://raw.githubusercontent.com/apache/incubator-echarts/master/map/json/china.json";
+var worldDataURL = "https://raw.githubusercontent.com/whb/maplab/master/maps/world-utf8.json";
+$.get(chinaDataURL, function(chinaJson) {
+	$.get(worldDataURL, function(worldJson) {
+		var chinaMap = JSON.parse(chinaJson);
+    var worldMap = JSON.parse(worldJson);
+    composeAreas(chinaMap.features, worldMap.features);
+    //chinaMap.features = chinaMap.features.concat(worldMap.features);
+
+    echarts.geoFixFuncs.push(layoutArea);
+
+		echarts.registerMap('chinaWithWorld', chinaMap, {
+			//'南海诸岛': {"left":117.5,"top":30,"width":1}
+		});
+
+		drawChart();
+
+	});
+});
 
 
 
@@ -83,118 +124,92 @@ var convertLineData = function (data) {
 };
 var lineData = [[{name: '大庆'}, {name: '朝阳区'}]];
 
-	var myChart = echarts.init(document.getElementById('main'));
-	var chinaDataURL = "https://raw.githubusercontent.com/apache/incubator-echarts/master/map/json/china.json";
-	var worldDataURL = "https://raw.githubusercontent.com/apache/incubator-echarts/master/map/json/world.json";
-	$.get(chinaDataURL, function(chinaJson) {
-		$.get(worldDataURL, function(worldJson) {
-			var chinaMap = JSON.parse(chinaJson);
-      var worldMap = JSON.parse(worldJson);
-      //chinaMap.features = chinaMap.features.concat(worldMap.features);
+var drawChart = function() {
+		var myChart = echarts.init(document.getElementById('main'));
+		myChart.hideLoading();
 
-      echarts.geoFixFuncs.push(fixAreaCoord);
-
-			echarts.registerMap('北京', worldMap, {
-				//'南海诸岛': {"left":117.5,"top":30,"width":1}
-			});
-
-			myChart.hideLoading();
-
-			myChart.setOption({
-			  visualMap: {
-					min: 10,
-					max: 50,
-					text:['High','Low'],
-					realtime: false,
-					calculable: true,
-					inRange: {
-						color: ['lightskyblue','yellow', 'orangered']
-					}
+		myChart.setOption({
+		  visualMap: {
+				min: 10,
+				max: 50,
+				text:['High','Low'],
+				realtime: false,
+				calculable: true,
+				inRange: {
+					color: ['lightskyblue','yellow', 'orangered']
+				}
+			},
+			geo: {
+				map: 'chinaWithWorld',
+				zoom: 1,
+				center: mapCenter,
+				roam: true,
+				label:{
+						show: true
 				},
-				geo: {
-					map: '北京',
-					zoom: 1,
-					center: mapCenter,
-					roam: true,
-					label:{
-							show: true
-					},
-				},
-				series: [
-				{
-					type: 'map',
-					map: '北京',
-					selectedMode:'single',
-					geoIndex: 0,
-					
-					data:[
-						{name: '朝阳区', value: 10},
-						{name: '门头沟区', value: 10},
-						{name: '通州区', value: 20},
-						{name: '昌平区', value: 30},
-						{name: '大兴区', value: 40},
-						{name: '房山区', value: 91},
-						{name: '顺义区', value: 15},
-						{name: '平谷区', value: 25},
-						{name: '密云区', value: 35},
-						{name: '延庆区', value: 35},
-						{name: '怀柔区', value: 45}
-					]
-				},
-
-				{
-            name: 'pm2.5',
-            type: 'scatter',
-            coordinateSystem: 'geo',
-            data: convertData(data),
-            symbolSize: function (val) {
-                return val[2] / 10;
-            },
-            label: {
-                normal: {
-                    formatter: '{b}',
-                    position: 'right',
-                    show: false
-                },
-                emphasis: {
-                    show: true
-                }
-            },
-            itemStyle: {
-                normal: {
-                    color: '#ddb926'
-                }
-            }
-        },
-
-        {
-		        name: 'Top10',
-		        type: 'lines',
-		        zlevel: 2,
-		        symbol: ['none', 'arrow'],
-		        symbolSize: 10,
-		        effect: {
-		            show: true,
-		            period: 6,
-		            trailLength: 0,
-		            symbol: 'arrow',
-		            symbolSize: 15
-		        },
-		        lineStyle: {
-		            normal: {
-		                color: 'black',
-		                width: 1,
-		                opacity: 0.6,
-		                curveness: 0.2
-		            }
-		        },
-		        data: convertLineData(lineData)
-		    },
+			},
+			series: [
+			{
+				type: 'map',
+				selectedMode:'single',
+				geoIndex: 0,
+				
+				data:[
+					{name: '朝阳区', value: 10},
 				]
-			});
-		});
-	});
+			},
 
+			{
+          name: 'pm2.5',
+          type: 'scatter',
+          coordinateSystem: 'geo',
+          data: convertData(data),
+          symbolSize: function (val) {
+              return val[2] / 10;
+          },
+          label: {
+              normal: {
+                  formatter: '{b}',
+                  position: 'right',
+                  show: false
+              },
+              emphasis: {
+                  show: true
+              }
+          },
+          itemStyle: {
+              normal: {
+                  color: '#ddb926'
+              }
+          }
+      },
+
+      {
+	        name: 'Top10',
+	        type: 'lines',
+	        zlevel: 2,
+	        symbol: ['none', 'arrow'],
+	        symbolSize: 10,
+	        effect: {
+	            show: true,
+	            period: 6,
+	            trailLength: 0,
+	            symbol: 'arrow',
+	            symbolSize: 15
+	        },
+	        lineStyle: {
+	            normal: {
+	                color: 'black',
+	                width: 1,
+	                opacity: 0.6,
+	                curveness: 0.2
+	            }
+	        },
+	        data: convertLineData(lineData)
+	    },
+			]
+		});
+}
 	
 </script>
 </body>
