@@ -1,3 +1,4 @@
+
 (function (root, factory) {
     if (typeof define === 'function' && define.amd) {
         // AMD. Register as an anonymous module.
@@ -38,10 +39,13 @@
         '欧洲' : ['France', 'Germany', 'Spain','Sweden','United Kingdom','Portugal','Norway','Italy','Ireland','Greece','Austria'],
     };
     var positionSettings = {
-        '北美' : { center: [150.842236328125, 47.657763671875], zoom: 0.2, centerOffset: [-50, 10]},
+        '北美' : { center: [150, 47], zoom: 0.2, centerOffset: [-50, 10]},
         '拉丁美洲' : { center: [152, 30], zoom: 0.2, centerOffset: [0, 30]},
         '欧洲' : { center: [75.576, 50.064], zoom: 0.2},
     };
+    var customeAreaCoord = {};
+
+
     var layoutArea = function (geo) {
         geo.regions.forEach(function (region) {
             var setting = positionSettings[region.name];
@@ -53,8 +57,10 @@
                 let left = setting.center[0] - (rect.width * setting.zoom)/2 - centerOffsetX*setting.zoom;
                 let bottom = setting.center[1] - (rect.height * setting.zoom)/2 - centerOffsetY*setting.zoom;
                 region.transformTo(left, bottom, rect.width * setting.zoom);
+                customeAreaCoord[region.name] = region.center;
             }
         });
+        console.log(customeAreaCoord)
     };
 
     // fix center point
@@ -67,6 +73,7 @@
                 var cp = region.center;
                 cp[0] += setting.centerOffset[0] * zoom;
                 cp[1] += setting.centerOffset[1] * zoom;
+                customeAreaCoord[region.name] = cp;
             }
         });
     };
@@ -109,4 +116,7 @@
     echarts.geoFixFuncs.push(layoutArea);
     echarts.geoFixFuncs.push(fixAreaGeoCoord);
     echarts.registerMap('chinaWithWorld', chinaMap);
+
+
+    exports.customeAreaCoord = customeAreaCoord;
 }));

@@ -17,10 +17,13 @@ var data = [
     {name: '朝阳区', value: 479}
 ];
 var geoCoordMap = {
-    '北美':  [150.842236328125, 57.657763671875],
+    '北美':  [150,47],
     '朝阳区':[116.5, 40]
 };
+
+
 var convertData = function (data) {
+	console.log(echarts.customeAreaCoord)
     var res = [];
     for (var i = 0; i < data.length; i++) {
         var geoCoord = geoCoordMap[data[i].name];
@@ -55,6 +58,7 @@ var lineData = [[{name: '北美'}, {name: '朝阳区'}]];
 var drawChart = function() {
 		var myChart = echarts.init(document.getElementById('main'));
 		myChart.hideLoading();
+
 
 		myChart.setOption({
 		  visualMap: {
