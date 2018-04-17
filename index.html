@@ -3,6 +3,7 @@
 <head>
   <meta charset="utf-8">
   <script src="echarts-4.0.4/echarts.js"></script>
+  <script src="maps/china-world-area.js"></script>
 	<script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
 </head>
 <body>
@@ -11,84 +12,12 @@
 <script type="text/javascript">
 var mapCenter = [116.5, 40];
 
-var geoAreaCoordMap = {
-    'Russia': [100, 60],
-    '北美': [140+8, 52.85+3.5]
-};
-
-var fixAreaGeoCoord = function (geo) {
-    geo.regions.forEach(function (region) {
-        var geoCoord = geoAreaCoordMap[region.name];
-        if (geoCoord) {
-            var cp = region.center;
-            cp[0] = geoCoord[0];
-            cp[1] = geoCoord[1];
-        }
-    });
-};
-
-var position = {
-    '北美' : { x: 140, y: 52.85, zoom: 0.15 },
-};
-var layoutArea = function (geo) {
-		let ratio = 0.08;
-		let center = mapCenter;
-    geo.regions.forEach(function (region) {
-        var oz = position[region.name];
-        if (oz) {
-            let rect = region.getBoundingRect();
-            region.transformTo(oz.x, oz.y, rect.width * oz.zoom);
-        }
-    });
-};
-
-var selectedAreas = ['Canada', 'United States'];
-var composeAreas = function (chinaFeatures, worldFeatures) {
-	let area = {
-		type: 'Feature',
-		geometry: {type: 'MultiPolygon', coordinates: [], encodeOffsets: []},
-		properties: {name: '北美', childNum: 0}
-	};
-	worldFeatures.filter(f => { return selectedAreas.includes(f.properties.name) }).forEach(f => {
-		console.log(f)
-		area.geometry.coordinates = area.geometry.coordinates.concat(f.geometry.coordinates);
-		area.geometry.encodeOffsets = area.geometry.encodeOffsets.concat(f.geometry.encodeOffsets);
-		area.properties.childNum += f.properties.childNum;
-	});
-	console.log(area)
-	chinaFeatures.push(area);
-}
-
-var chinaDataURL = "https://raw.githubusercontent.com/apache/incubator-echarts/master/map/json/china.json";
-var worldDataURL = "https://raw.githubusercontent.com/whb/maplab/master/maps/world-utf8.json";
-$.get(chinaDataURL, function(chinaJson) {
-	$.get(worldDataURL, function(worldJson) {
-		var chinaMap = JSON.parse(chinaJson);
-    var worldMap = JSON.parse(worldJson);
-    composeAreas(chinaMap.features, worldMap.features);
-    //chinaMap.features = chinaMap.features.concat(worldMap.features);
-
-    echarts.geoFixFuncs.push(layoutArea);
-    echarts.geoFixFuncs.push(fixAreaGeoCoord);
-
-		echarts.registerMap('chinaWithWorld', chinaMap, {
-			//'南海诸岛': {"left":117.5,"top":30,"width":1}
-		});
-
-		drawChart();
-	});
-});
-
-
-
-
-
 var data = [
     {name: '北美', value: 500},
     {name: '朝阳区', value: 479}
 ];
 var geoCoordMap = {
-    '北美':  [140+8, 52.85+3.5],
+    '北美':  [150.842236328125, 57.657763671875],
     '朝阳区':[116.5, 40]
 };
 var convertData = function (data) {
@@ -209,7 +138,8 @@ var drawChart = function() {
 			]
 		});
 }
-	
+
+drawChart();
 </script>
 </body>
 </html>
