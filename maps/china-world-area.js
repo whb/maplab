@@ -69,7 +69,8 @@
         });
     };
 
-
+    // https://gis.stackexchange.com/questions/121396/convert-multipolygon-geojson-to-multiple-geojson-polygons
+    // MultiPolygon => Polygon
     var composeAreas = function (chinaFeatures, worldFeatures) {
         for (var key in areaDefines) {
             let area = {
