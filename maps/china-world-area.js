@@ -8,7 +8,7 @@
         factory(exports, require('echarts'));
     } else {
         // Browser globals
-        factory({}, root.echarts);
+        factory(root.chinaWorldArea = {}, root.echarts);
     }
 }(this, function (exports, echarts) {
     // download from https://raw.githubusercontent.com/apache/incubator-echarts/master/map/json/china.json
@@ -43,8 +43,9 @@
         '拉丁美洲' : { center: [152, 30], zoom: 0.2, centerOffset: [0, 30]},
         '欧洲' : { center: [75.576, 50.064], zoom: 0.2},
     };
-    var customeAreaCoord = {};
+    var _customeAreaCenterCoord = {};
 
+    
 
     var layoutArea = function (geo) {
         geo.regions.forEach(function (region) {
@@ -57,24 +58,23 @@
                 let left = setting.center[0] - (rect.width * setting.zoom)/2 - centerOffsetX*setting.zoom;
                 let bottom = setting.center[1] - (rect.height * setting.zoom)/2 - centerOffsetY*setting.zoom;
                 region.transformTo(left, bottom, rect.width * setting.zoom);
-                customeAreaCoord[region.name] = region.center;
+                _customeAreaCenterCoord[region.name] = region.center;
             }
         });
-        console.log(customeAreaCoord)
     };
 
     // fix center point
     var fixAreaGeoCoord = function (geo) {
         geo.regions.forEach(function (region) {
             let setting = positionSettings[region.name];
-            
             if (setting && setting.centerOffset) {
                 let zoom = setting.zoom ? setting.zoom : 1;
                 var cp = region.center;
                 cp[0] += setting.centerOffset[0] * zoom;
                 cp[1] += setting.centerOffset[1] * zoom;
-                customeAreaCoord[region.name] = cp;
+                _customeAreaCenterCoord[region.name] = cp;
             }
+            
         });
     };
 
@@ -118,5 +118,5 @@
     echarts.registerMap('chinaWithWorld', chinaMap);
 
 
-    exports.customeAreaCoord = customeAreaCoord;
+    exports.customeAreaCenterCoord = _customeAreaCenterCoord;
 }));
