@@ -35,15 +35,17 @@
     // layout
     var areaDefines = {
         '北美' : ['Canada', 'United States'],
-        '拉丁美洲' : ['Mexico','Chile', 'Brazil', 'Argentina', 'Colombia'],
-        '欧洲' : ['France', 'Germany', 'Spain','Sweden','United Kingdom','Portugal','Norway','Italy','Ireland','Greece','Austria'],
+        '拉丁美洲' : ['Mexico', 'Colombia','Chile', 'Brazil', 'Argentina'],
+        '西欧' : ['Spain','Sweden','United Kingdom', 'Switzerland', 'Portugal', 'Norway',
+                'Netherlands','Italy', 'Ireland','Greece','Austria', 'Belgium',
+                'Denmark', 'Finland','France', 'Germany'],
     };
     var positionSettings = {
         '北美' : { center: [150, 47], zoom: 0.2, centerOffset: [-50, 10]},
         '拉丁美洲' : { center: [152, 30], zoom: 0.2, centerOffset: [0, 30]},
-        '欧洲' : { center: [75.576, 50.064], zoom: 0.2},
+        '西欧' : { center: [76, 50], zoom: 0.2},
     };
-    var _customeAreaCenterCoord = {};
+    var _customAreaCenterCoord = {};
 
     
 
@@ -58,7 +60,7 @@
                 let left = setting.center[0] - (rect.width * setting.zoom)/2 - centerOffsetX*setting.zoom;
                 let bottom = setting.center[1] - (rect.height * setting.zoom)/2 - centerOffsetY*setting.zoom;
                 region.transformTo(left, bottom, rect.width * setting.zoom);
-                _customeAreaCenterCoord[region.name] = region.center;
+                _customAreaCenterCoord[region.name] = region.center;
             }
         });
     };
@@ -72,10 +74,10 @@
                 var cp = region.center;
                 cp[0] += setting.centerOffset[0] * zoom;
                 cp[1] += setting.centerOffset[1] * zoom;
-                _customeAreaCenterCoord[region.name] = cp;
+                _customAreaCenterCoord[region.name] = cp;
             }
-            
         });
+        console.log(_customAreaCenterCoord)
     };
 
     // https://gis.stackexchange.com/questions/121396/convert-multipolygon-geojson-to-multiple-geojson-polygons
@@ -89,11 +91,6 @@
             };
             let countriesInArea = areaDefines[key];
             worldFeatures.filter(f => { return countriesInArea.includes(f.properties.name) }).forEach(f => {
-                // area.geometry.type = f.geometry.type;
-                // area.geometry.coordinates = area.geometry.coordinates.concat(f.geometry.coordinates);
-                // area.geometry.encodeOffsets = area.geometry.encodeOffsets.concat(f.geometry.encodeOffsets);
-                // area.properties.childNum += f.properties.childNum;
-
                let geom=f.geometry; 
                let props=f.properties;
                if (geom.type === 'MultiPolygon'){
@@ -117,6 +114,5 @@
     echarts.geoFixFuncs.push(fixAreaGeoCoord);
     echarts.registerMap('chinaWithWorld', chinaMap);
 
-
-    exports.customeAreaCenterCoord = _customeAreaCenterCoord;
+    exports.customAreaCenterCoord = _customAreaCenterCoord;
 }));
