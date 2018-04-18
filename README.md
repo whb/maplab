@@ -6,6 +6,7 @@
 
 ## 使用说明
 查看样例：运行index.html
+![](./snapshot/china-with-world.png)
 
 
 ## 实现方法
