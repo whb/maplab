@@ -10,7 +10,7 @@
 
 ## 实现方法
 
-**修改百度官方eeharts-4.0.4//echarts.js:**
+**修改百度官方echarts-4.0.4/echarts.js:**
 
 在文件结尾添加：
 ```javascript
