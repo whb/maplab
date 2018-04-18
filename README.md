@@ -59,3 +59,8 @@ positionSettings定义了区块中心点的经纬度，由于区块中心的算�
 中心偏移量修正技巧：
 
 区块的名字显示在区块的中心点，当名字与图形视觉中心不重合时，进行修正。
+
+为了方便定义Scatter图形的位置，代码在控制台输出了自定义区块的中心点修正后的位置。
+```javascript
+console.log(_customAreaCenterCoord)
+```
