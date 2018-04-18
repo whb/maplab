@@ -19,18 +19,22 @@ var geoCoordMap = {
     '拉丁美洲': [212, 30],
     '西欧': [206, 20],
     '上海': [121.4648,31.2891],
-    '朝阳区':[165, 40]
+    '朝阳区':[165, 40],
+    '学校1':[166, 46],
+    '学校2':[155, 33],
 };
 var getCoord = function (name) {
 	return geoCoordMap[name];
 }
 
 var data = [
-		{name: '朝阳区', value: 30},
     {name: '北美', value: 50},
     {name: '拉丁美洲', value: 40},
     {name: '西欧', value: 15},
     {name: '上海', value: 20},
+    {name: '朝阳区', value: 30},
+    {name: '学校1', value: 40},
+    {name: '学校2', value: 30},
 ];
 var convertData = function (data) {
     var res = [];
@@ -50,7 +54,10 @@ var lineData = [
 	[{name: '北美'}, {name: '朝阳区'}],
 	[{name: '拉丁美洲'}, {name: '朝阳区'}],
 	[{name: '西欧'}, {name: '朝阳区'}],
-	[{name: '上海'}, {name: '朝阳区'}]
+	[{name: '上海'}, {name: '朝阳区'}],
+  [{name: '上海'}, {name: '学校1'}],
+  [{name: '北美'}, {name: '学校1'}],
+  [{name: '北美'}, {name: '学校2'}],
 ];
 var convertLineData = function (data) {
     var res = [];
